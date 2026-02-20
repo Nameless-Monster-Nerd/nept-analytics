@@ -1,0 +1,36 @@
+name: Update nept-analytics
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  build-and-push:
+    runs-on: ubuntu-latest
+    steps:
+      # Step 1: Checkout the code
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      # Step 2: Docker login
+      - name: Docker login
+        run: echo "${{ secrets.DOCKERHUB_PASSWORD }}" | docker login -u "${{ secrets.DOCKERHUB_USERNAME }}" --password-stdin
+
+        
+      # Step 3: Install dependencies (optional example command)
+      - name: Install dependencies
+        run: |
+          docker compose build --no-cache 
+          docker compose push
+      
+      - name: Update cluster
+        run: |
+          echo "Updating cluster with latest Docker images..."
+          # Add your cluster update commands here
+          curl --location 'https://api.github.com/repos/Nameless-Monster-Nerd/nept-cloud-helm/dispatches' \
+          --header 'Accept: application/vnd.github+json' \
+          --header 'Content-Type: application/json' \
+          --header 'Authorization: Bearer ${{secrets.PAT}}' \
+          --data '{"event_type":"external_event","client_payload":{"foo":"bar"}}'
+
