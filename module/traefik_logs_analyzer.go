@@ -20,10 +20,11 @@ func NewTraefikLog() iter.Seq[*TraefikLog] {
 		if err != nil {
 			log.Fatalf("Error loading .env file: %v", err)
 		}
-		urlPart := os.Getenv("VICTORIALOGS_URL")
+		urlPart := os.Getenv("VICTORIA_LOGSENDPOINTS")
 
 		
 		url := urlPart + "/select/logsql/tail?query=kubernetes.container_name:traefik&start_offset=5m"
+		fmt.Println(url)	
 
 		fmt.Printf("Connecting to VictoriaLogs: %s\n", url)
 
