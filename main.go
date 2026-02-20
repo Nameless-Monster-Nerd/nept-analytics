@@ -37,17 +37,17 @@ func run(kubeconfig, namespace string) error {
 	var config *rest.Config
 	var err error
 
-	if kubeconfig != "" {
-		// use the current context in kubeconfig
-		config, err = clientcmd.BuildConfigFromFlags("", kubeconfig)
-		if err != nil {
-			return fmt.Errorf("failed to build kubeconfig: %w", err)
-		}
-	} else {
+	if os.Getenv("KUBERNETES_SERVICE_HOST") != "" {
 		// use the in-cluster config
 		config, err = rest.InClusterConfig()
 		if err != nil {
 			return fmt.Errorf("failed to build in-cluster config: %w", err)
+		}
+	} else {
+		// use the current context in kubeconfig
+		config, err = clientcmd.BuildConfigFromFlags("", kubeconfig)
+		if err != nil {
+			return fmt.Errorf("failed to build kubeconfig: %w", err)
 		}
 	}
 
