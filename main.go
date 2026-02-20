@@ -3,6 +3,7 @@ package main
 import (
 	"flag"
 	"fmt"
+	"net/http"
 	"os"
 	"path/filepath"
 	"time"
@@ -58,7 +59,16 @@ func run(kubeconfig, namespace string) error {
 
 	// Block forever since workers are running
 	fmt.Println("NEPT Analytics started. Ingestors are running in the background...")
-	select {}
+
+	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
+		w.WriteHeader(http.StatusOK)
+		w.Write([]byte("OK"))
+	})
+
+	fmt.Println("Starting health server on :80...")
+	if err := http.ListenAndServe(":80", nil); err != nil {
+		fmt.Fprintf(os.Stderr, "HTTP server error: %v\n", err)
+	}
 
 	return nil
 }
