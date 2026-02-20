@@ -9,6 +9,7 @@ import (
 	"time"
 
 	"k8s.io/client-go/kubernetes"
+	"k8s.io/client-go/rest"
 	"k8s.io/client-go/tools/clientcmd"
 	"k8s.io/client-go/util/homedir"
 	metrics "k8s.io/metrics/pkg/client/clientset/versioned"
@@ -33,10 +34,21 @@ func main() {
 }
 
 func run(kubeconfig, namespace string) error {
-	// use the current context in kubeconfig
-	config, err := clientcmd.BuildConfigFromFlags("", kubeconfig)
-	if err != nil {
-		return fmt.Errorf("failed to build kubeconfig: %w", err)
+	var config *rest.Config
+	var err error
+
+	if kubeconfig != "" {
+		// use the current context in kubeconfig
+		config, err = clientcmd.BuildConfigFromFlags("", kubeconfig)
+		if err != nil {
+			return fmt.Errorf("failed to build kubeconfig: %w", err)
+		}
+	} else {
+		// use the in-cluster config
+		config, err = rest.InClusterConfig()
+		if err != nil {
+			return fmt.Errorf("failed to build in-cluster config: %w", err)
+		}
 	}
 
 	// create the clientset
