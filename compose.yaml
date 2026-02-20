@@ -1,0 +1,9 @@
+
+services:
+  server:
+    image: luslucifer490587/nept-analytics:latest
+    build:
+      context: .
+      target: final
+    ports:
+      - 8080:8080
