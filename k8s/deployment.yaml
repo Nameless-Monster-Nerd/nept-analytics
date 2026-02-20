@@ -1,0 +1,58 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: nept-analytics
+  namespace: default
+  labels:
+    app: nept-analytics
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: nept-analytics
+  template:
+    metadata:
+      labels:
+        app: nept-analytics
+    spec:
+      serviceAccountName: nept-analytics-sa
+      containers:
+        - name: nept-analytics
+          image: luslucifer490587/nept-analytics:latest
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 80
+          env:
+            - name: CH_ENDPOINT
+              value: "http://207.244.199.30:8123"
+            - name: CH_USER
+              value: "default"
+            - name: CH_PASSWORD
+              value: "password123"
+            - name: VICTORIALOGS_URL
+              value: "http://localhost:9428" # Please replace localhost with the actual VictoriaLogs cluster service URL!
+          livenessProbe:
+            httpGet:
+              path: /
+              port: 80
+            initialDelaySeconds: 15
+            periodSeconds: 20
+          readinessProbe:
+            httpGet:
+              path: /
+              port: 80
+            initialDelaySeconds: 5
+            periodSeconds: 10
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: nept-analytics
+  namespace: default
+spec:
+  selector:
+    app: nept-analytics
+  ports:
+    - protocol: TCP
+      port: 80
+      targetPort: 80
